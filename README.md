@@ -1,58 +1,49 @@
 
 # Welcome to your CDK Python project!
+# 通过Amazon CDK 在多区域部署 SearxNG并就近访问
 
-This is a blank project for CDK development with Python.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
-
-To manually create a virtualenv on MacOS and Linux:
-
-```
-$ python3 -m venv .venv
-```
-
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
-
-```
-$ source .venv/bin/activate
+## 项目结构
+```bash
+searxng_deploy/
+├── app_docker/ # 部署的docker镜像
+├── bootstrap.sh # 在区域启用bootstrap
+├── cdk.json # 配置文件
+├── cdk.context.json # 配置文件
+├── requirements.txt # 依赖
+├── requirements-dev.txt # 依赖
+├── README.md # 说明
+└── searxng_deploy
+    ├── searxng_deploy_stack.py # 部署lambda函数和cloudfront+lambda edge
+    └── route53_stack.py # 部署route53
 ```
 
-If you are a Windows platform, you would activate the virtualenv like this:
+## 环境准备
+```bash
+# 安装Python3和虚拟环境
+sudo apt install python3-venv
 
-```
-% .venv\Scripts\activate.bat
-```
+# 初始化环境
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-Once the virtualenv is activated, you can install the required dependencies.
-
-```
-$ pip install -r requirements.txt
-```
-
-At this point you can now synthesize the CloudFormation template for this code.
-
-```
-$ cdk synth
+# 安装CDK CLI（全局）
+npm install -g aws-cdk@latest
 ```
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+## 部署流程
+0. 根据需要修改配置文件 cdk.context.json
+定义了需要部署的区域，以及需要部署的域名
+1. 在区域启用bootstrap
+```bash
+./bootstrap.sh
+```
+1. 部署
+```bash
+cdk deploy all
+```
 
-## Useful commands
-
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
-
-Enjoy!
+2. 删除
+```bash
+cdk destroy all
+```
